@@ -1,0 +1,182 @@
+Oleg Andreev <oleganza@gmail.com> (November 20, 2009)
+
+Theca is a programming language with strong static typing and dynamic compilation.
+Theca is inspired by C, JavaScript and Lua. The goal is to create a simple, efficient and expressive language as an alternative for C.
+
+What Theca is not.
+
+  0. It is not Haskell. It provides mutable variables, easy type casting, pointer arithmetic and other kinds of dirty side-effect features we use C for.
+  1. It is not a high-level object-oriented language: objects could be created using closures, structures and types. 
+     There could be syntactic addition for polymorphic message sending, but this is not the central part.
+     Theca provides powerful structuring features, but they are semi-static. It does not unify structures on byte level,
+     does not provide invisible indirections in runtime. But you may generate code with closures, and inspect/create types in runtime.
+     Theca should be a great language to build efficient high-level OO languages.
+  2. It is not safe over performance language: bound-checking array operations could be implemented with macros and objects.
+     By default, you are close to the machine and should know what are you doing.
+  3. It is not garbage-collected language: there's no single best GC solution yet and there are many cases when it doesn not matter at all.
+  4. It does not provide exceptions (yet). Those could be implemented with coroutines.
+  
+
+Etymology 
+
+  A theca (plural thecae) refers to any case, covering, or sheath. 
+  The name corresponds to proper incapsulation provided by the language. 
+
+
+Let's start with examples:
+
+****
+Note: Current macro syntax for types will change soon in order to be more "method call" like.
+      The reason for this will become clear when I'll describe how to write macros
+****
+
+1. Variables
+  
+  Variable is declared using alphanumeric characters starting with a lower-case letter (or underscore).
+  Variable is always assigned initial value. The type of the variable is set to the type of the initial value.
+  
+    x = 1
+    
+  Here we define a variable "x" with initial value 1 of the type Integer.
+  
+  We may change the variable value, but only to the value of the same type:
+  
+    x = 2    // fine
+    x = 3.14 // compile-time type error
+    
+  Variable may be defined with a literal or with an expression:
+
+    x = 1
+    y = 2
+    z = x + y
+  
+  Type of x, y and (x + y) is determined at compile time and z is defined with type of result of (x + y) which is Integer.
+  
+  You may force use of UnsignedInteger
+
+    x = UnsignedInteger(0)
+    y = UnsignedInteger(1)
+    z = x + y
+
+  Then z will be an UnsignedInteger too.
+  
+  
+2. Expressions  
+  
+  Expressions could be grouped with parentheses and delimited by line breaks or semicolons:
+    
+    a(); b(); c()
+    x = (1; 2)        // x == 2  
+    x = ((1 + 2) * 3) // x == 9
+  
+  Unneccessary line breaks and semicolons are simply ignored:
+  
+    x = (1; 2; )     // x == 2
+    x = (1; 2;;;; )  // x == 2
+    
+  Each expression returns a value. 
+  
+  
+3. Control flow 
+  
+  Control flow is implemented with macros. There are some built-in macros, but you may write new macros yourself.
+  Note, however, that the built-in macro names are not reserved: you can override any identifier (macro or variable) within some lexical scope.
+  
+  Conditional logic is implemented with If macro:
+  
+    If(x > y, True, False)
+    
+  "If" consists of three parts: predicate, positive branch and negative branch. If the condition is evaluated to True, then positive branch is entered and its code is executed. Otherwise, negative branch is used.
+  
+
+4. Functions
+  
+  You may define a function:
+
+    max = Function(a = Integer(), b = Integer(), 
+      If(a > b, a, b)
+    )
+  
+  
+
+*. Inspecting types
+
+  
+
+*. Custom types
+
+
+
+*. Default values
+  
+  In theca, every type has a corresponding default value which is constant.
+  Likewise, the type of the value is inspected with the TypeOf(), the default value of the type is 
+  
+    value = Default
+   
+  Built-in and already has meaningful default value (like Integer)
+  
+  
+  There is a short version of the "If", with two parts: 
+
+    result = If(x > y, something)
+  
+  Here, the negative branch is omitted, but its return type is inferred from the positive branch type. 
+  Since each type has a default value, the default value is used in the negative branch.
+  If the something is of type Integer and x is not greater than y, then the result will be 0 (DefaultValueFor(Integer) == 0)
+  
+    VariableHoldingInteger = Integer
+    VariableHoldingInteger = TypeOf(0)
+    DefaultFunctionReturningInteger = Function(a = Integer(), b = Integer(), Integer())
+    FunctionReturningInteger = TypeOf(DefaultFunctionReturningInteger)
+    DefaultFunctionReturningInteger == DefaultValueFor(FunctionReturningInteger)
+  
+  
+*. Type casting
+  
+  Types can be casted using the type name:
+  
+    signedInteger = 1
+    unsignedInteger = UnsignedInteger(signedInteger)
+  
+  
+  
+*. Pointers
+  
+  Theca supports pointers and pointer arithmetic. The pointer type is always bound to some value type:
+  
+    age = 23
+    pAge = AddressOf(age)
+    TypeOf(pAge) == PointerTo(Integer)
+    
+  Default pointer value for any value type is Nil:
+  
+    nil = PointerTo(Integer)() // here PointerTo(Integer) is a type and empty parentheses depict taking a default value for this type
+    TypeOf(nil) == PointerTo(Void)
+    nil == Nil
+  
+  Pointer types are casted as any other types:
+  
+    result = functionReturningPointerToVoid()
+    resultAsPointerToInteger = PointerTo(Integer)(result) // result is reinterpreted as a pointer to Integer
+  
+  
+*. Void pointer and Void type
+
+  Each expression returns a value. However, some expressions do not return any meaningful value. For such cases there's a void pointer:
+  
+    PointerTo(Void)
+  
+
+*. Structures
+
+
+
+*. Memory management
+
+
+
+*. Object-Oriented Programming
+
+
+
