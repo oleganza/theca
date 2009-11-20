@@ -27,7 +27,7 @@ Let's start with examples:
 
 ****
 Note: Current macro syntax for types will change soon in order to be more "method call" like.
-      The reason for this will become clear when I'll describe how to write macros
+      The reason for this will become clear after I describe how to write macros
 ****
 
 1. Variables
