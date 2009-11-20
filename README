@@ -88,7 +88,11 @@ Note: Current macro syntax for types will change soon in order to be more "metho
   There are two assignment operators: ":=" and "="
   
   := declares a new name (variable or constant) in the current lexical scope. 
-  =  sets new value to a variable
+  =  sets a new value to a variable
+  
+  Compiler error occurs when:
+  - "=" is used with undefined variable or any constant
+  - ":=" is used with an already defined variable or constant in the same scope
   
   
 3. Control flow 
@@ -158,8 +162,8 @@ Note: Current macro syntax for types will change soon in order to be more "metho
   
   Lexical scope is a group of expressions delimited by parentheses.
   
-  x := 1; (x := 2); y = x
-  
+  x := 1; (x := 2); y = x // y == 1
+  x := 1; (x = 2);  y = x // y == 2
   
   Code in Theca is executed in the particular local scope (by the way, there is no global scope).
   
