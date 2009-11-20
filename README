@@ -3,6 +3,12 @@ Oleg Andreev <oleganza@gmail.com> (November 20, 2009)
 Theca is a programming language with strong static typing and dynamic compilation.
 Theca is inspired by C, JavaScript and Lua. The goal is to create a simple, efficient and expressive language as an alternative for C.
 
+Etymology 
+
+  A theca (plural thecae) refers to any case, covering, or sheath. 
+  The name corresponds to proper incapsulation provided by the language. 
+
+
 What Theca is not.
 
   0. It is not Haskell. It provides mutable variables, easy type casting, pointer arithmetic and other kinds of dirty side-effect features we use C for.
@@ -17,13 +23,6 @@ What Theca is not.
   4. It does not provide exceptions (yet). Those could be implemented with coroutines.
   
 
-Etymology 
-
-  A theca (plural thecae) refers to any case, covering, or sheath. 
-  The name corresponds to proper incapsulation provided by the language. 
-
-
-Let's start with examples:
 
 ****
 Note: Current macro syntax for types will change soon in order to be more "method call" like.
@@ -35,46 +34,61 @@ Note: Current macro syntax for types will change soon in order to be more "metho
   Variable is declared using alphanumeric characters starting with a lower-case letter (or underscore).
   Variable is always assigned initial value. The type of the variable is set to the type of the initial value.
   
-    x = 1
+    x := 1
     
-  Here we define a variable "x" with initial value 1 of the type Integer.
+  Here we declare a variable "x" with initial value 1 of the type Integer.
   
   We may change the variable value, but only to the value of the same type:
   
-    x = 2    // fine
-    x = 3.14 // compile-time type error
+    x := 2    // fine
+    x := 3.14 // compile-time type error
     
-  Variable may be defined with a literal or with an expression:
+  Variable may be declared with a literal or with an expression:
 
-    x = 1
-    y = 2
-    z = x + y
+    x := 1
+    y := 2
+    z := x + y
   
-  Type of x, y and (x + y) is determined at compile time and z is defined with type of result of (x + y) which is Integer.
+  Type of x, y and (x + y) is determined at compile time and z is declared with type of result of (x + y) which is Integer.
   
   You may force use of UnsignedInteger
 
-    x = UnsignedInteger(0)
-    y = UnsignedInteger(1)
-    z = x + y
+    x := UnsignedInteger(0)
+    y := UnsignedInteger(1)
+    z := x + y
 
   Then z will be an UnsignedInteger too.
   
+  Variable cannot change its type. However, you may declare a completely new variable with the same name in the new lexical scope.
+  
+  Constants are just like variables except that they cannot change both the type and the value.
+  Constants begin with an upper-case letter:
+  
+    Pi := 3.1415926535897
+    E  := 2.7182818284590
+    MyInt := UnsignedInteger
+  
+  There's no "const" keyword or special syntax for constants. They are identified by upper-case english letter only.
   
 2. Expressions  
   
   Expressions could be grouped with parentheses and delimited by line breaks or semicolons:
     
     a(); b(); c()
-    x = (1; 2)        // x == 2  
-    x = ((1 + 2) * 3) // x == 9
+    x := (1; 2)        // x == 2  
+    x := ((1 + 2) * 3) // x == 9
   
   Unneccessary line breaks and semicolons are simply ignored:
   
-    x = (1; 2; )     // x == 2
-    x = (1; 2;;;; )  // x == 2
+    x := (1; 2; )     // x == 2
+    x := (1; 2;;;; )  // x == 2
     
   Each expression returns a value. 
+  
+  There are two assignment operators: ":=" and "="
+  
+  := declares a new name (variable or constant) in the current lexical scope. 
+  =  sets new value to a variable
   
   
 3. Control flow 
@@ -91,9 +105,9 @@ Note: Current macro syntax for types will change soon in order to be more "metho
 
 4. Functions
   
-  You may define a function:
+  You may declare a function:
 
-    max = Function(a = Integer(), b = Integer(), 
+    max := Function(a := Integer(), b := Integer(), 
       If(a > b, a, b)
     )
   
@@ -112,14 +126,14 @@ Note: Current macro syntax for types will change soon in order to be more "metho
   In theca, every type has a corresponding default value which is constant.
   Likewise, the type of the value is inspected with the TypeOf(), the default value of the type is 
   
-    value = Default
+    value := DefaultValueOf(Integer)
    
   Built-in and already has meaningful default value (like Integer)
   
   
   There is a short version of the "If", with two parts: 
 
-    result = If(x > y, something)
+    result := If(x > y, something)
   
   Here, the negative branch is omitted, but its return type is inferred from the positive branch type. 
   Since each type has a default value, the default value is used in the negative branch.
@@ -138,6 +152,28 @@ Note: Current macro syntax for types will change soon in order to be more "metho
   
     signedInteger = 1
     unsignedInteger = UnsignedInteger(signedInteger)
+  
+
+*. Few words about lexical scope
+  
+  Lexical scope is a group of expressions delimited by parentheses.
+  
+  x := 1; (x := 2); y = x
+  
+  
+  Code in Theca is executed in the particular local scope (by the way, there is no global scope).
+  
+  Local scope consists of the:
+  - current coroutine
+  - stack pointer
+  - local variables
+  - types and constants
+  
+  Local variables, types and constants could be shadowed inside the nested lexical scope. 
+  
+
+*. Dynamic type creation and code loading
+  
   
   
   
