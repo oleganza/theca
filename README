@@ -225,18 +225,35 @@ Note: Current macro syntax for types will change soon in order to be more "metho
 *. Macros 
 
   Macros are executed at compile-time and are used for generating executable code.
+
+  MyIf := Macro(
+    condition := Block(),
+    ifTrue    := Block(),
+    ifFalse   := Block(),
+    
+    result = condition()
+    If(result, Return(ifTrue()))
+    
+    // result type of IsEmptyBlock is SyntaxBoolean which could be SyntaxTrue or SyntaxFalse
+    If(IsEmptyBlock(ifFalse), Return(TypeOfResult(ifTrue)))
+    If(!result, Return(ifFalse()))
+  )
   
-  ForEach := Macro(enumerable := Object() asEnumerable, item, block := Block(),
+  If(codition, iftrue, iffalse)
+
+  
+  ForEach := Macro(enumerable := Object() asEnumerable, block := Function(),
     cursor := enumerable enumerationCursor
     While(item = cursor nextObject,
-      block()
+      block(cursor nextObject)
     )
   )
   
   // TODO: maybe, supply something like Block(x,y,..., code) ?
-  ForEach(array, item := String(),
+  ForEach(array, Function(item := String(),
     log("%@", item)
-  )
+  ))
+  
 
 
 *. Memory management
