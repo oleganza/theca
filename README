@@ -210,6 +210,33 @@ Note: Current macro syntax for types will change soon in order to be more "metho
 
 *. Structures
 
+  NSSize := Struct(
+    width  := Float64(0),
+    height := Float64(0)
+  )
+
+  NSRect := Struct(
+    origin := NSPoint(),
+    size := NSSize(),
+  )
+  
+  NSRectZero := NSRect() // or NSRect(NSPoint(), NSSize()) or NSRect(NSPoint(0,0), NSSize(0,0))
+
+*. Macros 
+
+  Macros are executed at compile-time and are used for generating executable code.
+  
+  ForEach := Macro(enumerable := Object() asEnumerable, item, block := Block(),
+    cursor := enumerable enumerationCursor
+    While(item = cursor nextObject,
+      block()
+    )
+  )
+  
+  // TODO: maybe, supply something like Block(x,y,..., code) ?
+  ForEach(array, item := String(),
+    log("%@", item)
+  )
 
 
 *. Memory management
